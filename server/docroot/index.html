@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+  <head>
+    <title>GENOME DATA</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+     body { font-family: arial; }
+     #actheartbeatled { size: 1.2em; }
+     #map {
+       height: 400px;
+       width: 100%;
+     }
+     #suggestionarea {
+       margin:10px;
+       display: flex;   
+       flex-wrap: wrap;
+       justify-content: center;
+     }
+    </style>
+    <style>
+      .demo-card-square.mdl-card {
+        width: 320px;
+        height: 320px;
+        margin: 10px;
+      }
+     .demo-card-square > .mdl-card__title {
+       color: #fff;
+       background:
+       url('https://getmdl.io/assets/demos/dog.png') bottom right 15% no-repeat #46B6AC;
+     }
+    </style>
+  </head>
+  <body>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+
+    <h2>Menu Gen</h2>
+    <ul>
+      <li><button id="gettestdata">getdata</button></li>
+      <li><button id="dropmarker">dropmarker</button></li>
+    </ul>
+
+    <div id="map"></div>
+    <div id="suggestionarea">
+
+
+    </div>
+    
+    <script>
+     var map;
+     function initMap() {
+         var digigare = {lat: 37.7869089, lng: -122.4035783};
+         map = new google.maps.Map(document.getElementById('map'), {
+             zoom: 15,
+             center: digigare
+         });
+         var marker = new google.maps.Marker({
+             position: digigare,
+             map: map
+         });
+     }
+    </script>
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCUApugq9KyaUlVlwA6CggJNKjBSfWHivM&callback=initMap">
+    </script>
+
+    
+    <script type="text/javascript">
+     let state={
+         act: false,
+         pwr: false
+     };
+     document.querySelector('#gettestdata').addEventListener('mousedown', () => {
+         let path = '/api/getyelpdata';
+         getData( path, (data) => {
+             console.log(data);
+         })
+     });
+     let markerData = [
+         {name:'Dragon Gate',        lat: 37.7885934, lng:-122.4049237},
+         {name:'Blue Bottle Coffee', lat: 37.7887661, lng:-122.4048508},
+         {name:'Asha Tea House',     lat: 37.7872889, lng:-122.4061981},
+         {name:'Cafe Bistro',        lat: 37.7849388, lng:-122.4069385},
+     ];
+     
+     document.querySelector('#dropmarker').addEventListener('mousedown', () => {
+         dropMarker(markerData);
+     });
+
+     var cardTemplate = '<div id="%%IDNAME%%" class="demo-card-square mdl-card mdl-shadow--6dp">' +
+                        '  <div class="mdl-card__title mdl-card--expand">' +
+                        '    <h2 class="mdl-card__title-text">%%TITLE%%</h2>' +
+                        '  </div>' +
+                        '  <div class="mdl-card__supporting-text">%%EXPLANATION%%</div>' +
+                        '    <div class="mdl-card__actions mdl-card--border">' +
+                        '      <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">' +
+                        '        View Updates' +
+                        '      </a>' +
+                        '    </div>' +
+                        '  </div>';
+
+     function dropMarker(data) {
+         data.forEach((val, index, arr) => {
+             var marker = new google.maps.Marker({
+                 position: {lat:val.lat, lng:val.lng},
+                 map: map
+             });
+             google.maps.event.addListener(marker, 'click', function (event) {
+                 new google.maps.InfoWindow({
+                     content: '<p>' + val.name + '</p><br><a href="https://www.google.com/maps/@"+val.lat+","+val.lng+",16.82z" target="_blank">Navigate</a>'
+                 }).open(marker.getMap(), marker);
+             });
+             var addingCard = cardTemplate;
+             var no_name = val.name.replace(/ /g, '-');
+             addingCard = addingCard.replace('%%TITLE%%', val.name).replace('%%EXPLANATION%%', 'HELLO '+ val.name).replace('%%IDNAME%%', no_name);
+             document.querySelector('#suggestionarea').innerHTML+=addingCard;
+             setTimeout(() => {
+                 console.log(document.querySelector('#'+no_name));
+                 document.querySelector('#'+no_name).addEventListener('mousedown', (event) => {
+                     new google.maps.InfoWindow({
+                         content: '<p>' + val.name + '</p><br><a href="https://www.google.com/maps/@"+val.lat+","+val.lng+",16.82z" target="_blank">Navigate</a>'
+                     }).open(marker.getMap(), marker);
+                 });
+             }, 100);
+         });
+     }
+          
+
+     
+     function getData(path, callback) {
+         let header = new Headers();
+
+         fetch( path ).then( res => {
+             if(res.status !== 200) {
+                 console.log("ERROR: Status Code: " + res.status);
+                 return;
+             }
+             res.json().then( data => {
+                 callback(data);
+             });
+         }).catch( err => {
+             console.log(err);
+         });
+
+     }
+     
+    </script>
+
+  </body>
+</html>

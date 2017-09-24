@@ -1,0 +1,20 @@
+{
+  "name": "pkg name",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [],
+  "author": {
+    "name": "",
+    "email": "",
+    "url": ""
+  },
+  "bin": {
+    "npm-generator": "./bin/pkg"
+  },
+  "license": "MIT"
+}
