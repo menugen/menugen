@@ -32,9 +32,11 @@ let server = app.listen(serverConf.port, () => {
 });
 
 
+
 const yelp = require('yelp-fusion');
 let clientId = 'BEjYW0NplFwcKJfpKNZr7g';
 let clientSecret = 'c7VgEbIExv3Wol34lMDXwqBSjVOLLuhzPhepta0P6QfsVz5SRVSjxuGyMS3boSS1'; 
+let curl = require('curlrequest');
 
 app.get("/api/getyelpdata", (req, res, next) => {
 // https://github.com/Yelp/yelp-fusion/blob/master/fusion/node/sample.js
@@ -56,6 +58,29 @@ app.get("/api/getyelpdata", (req, res, next) => {
         console.log(e);
     });
 });
+
+app.get("/api/genomelink", (req, res, next) => {
+    let path = req.query.path;
+    let param = req.query.param.replace('::::', '=');
+    let baseUrl='https://genomicexplorer.io/v1';
+    if(path=='' || typeof path=='undefined') {
+        path='/reports/eye-color?population=european';
+    }
+    let options = {
+        url: baseUrl+path + '?' + param,
+        include: true,
+        headers: { Authorization: 'Bearer GENOMELINKTEST'}
+    };
+
+    curl.request(options, function (err, parts) {
+        parts = parts.split('\r\n');
+        let body = parts.pop()
+        , head = parts.pop();
+        res.json({status: true, body:body});
+    });
+});
+
+
 
 // establish Web Server(Doc)
 app.use('/', express.static('server/docroot/index.html'));

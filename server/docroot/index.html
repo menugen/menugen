@@ -43,23 +43,35 @@
     </ul>
 
     <div id="map"></div>
-    <div id="suggestionarea">
-
-
-    </div>
+    <div id="suggestionarea"></div>
     
-    <script>
+    <script type="text/javascript">
      var map;
-     function initMap() {
-         var digigare = {lat: 37.7869089, lng: -122.4035783};
+     function initMap(position) {
+         if(typeof position=='undefined') {
+             position = {lat: 37.7869089, lng: -122.4035783};
+         }
+         console.log(position);
          map = new google.maps.Map(document.getElementById('map'), {
              zoom: 15,
-             center: digigare
+             center: position
          });
          var marker = new google.maps.Marker({
-             position: digigare,
+             position: position,
+             icon: '/images/mark_maru.png',
              map: map
          });
+     }
+
+     getLocation();
+     function getLocation() {
+         if (navigator.geolocation) {
+             navigator.geolocation.getCurrentPosition((pos) => {
+                 initMap({lat: pos.coords.latitude, lng: pos.coords.longitude});
+             });
+         } else {
+             x.innerHTML = "Geolocation is not supported by this browser.";
+         }
      }
     </script>
     <script async defer
@@ -126,13 +138,19 @@
              }, 100);
          });
      }
-          
 
      
-     function getData(path, callback) {
-         let header = new Headers();
+     
+     // Sample to getch data from 
+     // https://genomicexplorer.io/developers/docs/tutorial-getting-started/
+     fetchData('/reports/eye-color', 'population=european', (out) => {
+         let param = JSON.parse(out.body);
+         console.log('[RESULT]', out, param);
+     });
 
-         fetch( path ).then( res => {
+     function fetchData(path, param, callback) {
+         param=param.replace('=', '::::')
+         fetch( '/api/genomelink?path=' + path + '&param=' + param, { method: 'get' } ).then( res => {
              if(res.status !== 200) {
                  console.log("ERROR: Status Code: " + res.status);
                  return;
